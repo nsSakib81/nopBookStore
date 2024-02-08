@@ -1,0 +1,75 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model IEnumerable<NopBookStore.ViewModels.BookIndexPageViewModel>
+
+<h1>@ViewBag.Title</h1>
+
+<p class="mt-2">
+    <a asp-action="Create" class="btn btn-success" style="text-decoration: none;">
+        <i class="bi bi-plus"></i> Create New
+    </a>
+</p>
+<p class="mt-2">
+    <a asp-action="Logout" asp-controller="User" class="btn btn-outline-danger" style="text-decoration: none;">
+        <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+</p>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.CoverPhoto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Language)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Select((value, index) => new { Value = value, Index = index }))
+        {
+
+            <tr class="@((item.Index % 2 == 0) ? "even" : "odd") ">
+                <td>
+                    <a asp-action="Details" style="text-decoration: none;" asp-route-id="@item.Value.BookId">
+                        @Html.DisplayFor(modelItem => item.Value.Title)
+                    </a>
+
+                </td>
+
+                <td>
+                    <img src="data:@item.Value.PictureFormat;base64,@item.Value.CoverPhoto" width="80" height="100" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Value.Language)
+                </td>
+                <td>
+                    <a asp-controller="Author" asp-action="Details" style="text-decoration: none;" asp-route-id="@item.Value.AuthorId">
+                        @Html.DisplayFor(modelItem => item.Value.Author.AuthorName)
+                    </a>
+                </td>
+                <td>
+                    <a asp-action="Details" style="text-decoration: none;" asp-route-id="@item.Value.BookId">Details</a>|
+
+                    <a asp-action="Edit" style="text-decoration: none;" asp-route-id="@item.Value.BookId">Edit</a> |
+                    <a asp-action="Delete" style="text-decoration: none; color:red" asp-route-id="@item.Value.BookId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

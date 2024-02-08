@@ -1,0 +1,90 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model NopBookStore.ViewModels.BookCreationViewModel
+
+
+<h1>@ViewBag.Title</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mt-1">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="publicationDate" class="control-label"></label>
+                <input asp-for="publicationDate" class="form-control" />
+                <span asp-validation-for="publicationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="ISBN" class="control-label"></label>
+                <input asp-for="ISBN" class="form-control" />
+                <span asp-validation-for="ISBN" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="Genre" class="control-label"></label>
+                <input asp-for="Genre" class="form-control" />
+                <span asp-validation-for="Genre" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="StockAmount" class="control-label"></label>
+                <input asp-for="StockAmount" class="form-control" />
+                <span asp-validation-for="StockAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-1">
+                <label asp-for="Language" class="control-label"></label>
+                <input asp-for="Language" class="form-control" />
+                <span asp-validation-for="Language" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-1">
+                <label asp-for="AuthorId" class="control-label"></label>
+                <select asp-for="AuthorId" class="form-control">
+                    @foreach (var author in ViewBag.Authors)
+                    {
+                        <option value="@author.AuthorId">@author.AuthorName</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group mt-1">
+                <label asp-for="CoverPhoto" class="control-label"></label>
+                <input asp-for="CoverPhoto" id="fileInput" onchange="PreviewFile()" class="form-control" accept="image/*" />
+                <span asp-validation-for="CoverPhoto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-1 mt-1">
+                @*preview file*@
+                <img id="preview" src="#" alt="Preview" style="max-width: 100%; max-height: 100%; display: none">
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script src="~/js/photoPreview.js"></script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

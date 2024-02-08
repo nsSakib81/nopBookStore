@@ -1,0 +1,38 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model NopBookStore.ViewModels.UserLoginViewModel
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <h2 class="text-center">Log In</h2>
+            @{
+                if (ViewBag.Message != null)
+                {
+                    <p style="color:red">@ViewBag.Message</p>
+                }
+            }
+            <form asp-action="Login" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group mt-3">
+                    <label asp-for="UserEmail" class="control-label"></label>
+                    <input asp-for="UserEmail" class="form-control" />
+                    <span asp-validation-for="UserEmail" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-3">
+                    <label asp-for="UserPassword" class="control-label"></label>
+                    <input asp-for="UserPassword" class="form-control" />
+                    <span asp-validation-for="UserPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-4 text-center">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-area="" asp-controller="User" asp-action="SignUp" class="text-dark">Don't have an account? Sign up here.</a>
+            </div>
+        </div>
+    </div>
+</div>

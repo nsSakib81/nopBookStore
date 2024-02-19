@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "SB8dVTG0WMsUMXH5oDVhPwck4Td71k1iHgmPR+ClcCWeIk3W8uyAiE6gR7R5rNSL7JcU1YIP/r0rpvxmlIZLnw==",
+  "dgSpecHash": "dev3xDyONUb2jhhwwFtDUdsVqzm7HKOl/BMrDvw2wzop5cKAe2vqLAZSwRFdPFlnoNCXrt4NhIfhQQI0nV5ZAg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
+  "projectFilePath": "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Piyash\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Piyash\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

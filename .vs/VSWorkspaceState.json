@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\NopBookStore",
+    "\\NopBookStore\\Data",
+    "\\NopBookStore\\IServices",
+    "\\NopBookStore\\Services",
+    "\\NopBookStore\\ViewModels"
+  ],
+  "SelectedNode": "\\NopBookStore\\Services\\RolePermissionService.cs",
+  "PreviewInSolutionExplorer": false
+}

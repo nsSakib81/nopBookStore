@@ -7,6 +7,6 @@ namespace NopBookStore.Models
         [Key]
         public int RoleId { get; set; }
         public string RoleName { get; set; }
-
+        public RolePermission RolePermission { get; set; }
     }
 }

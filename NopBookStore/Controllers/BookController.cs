@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NopBookStore.Models;
 using System.Security.Claims;
 using NopBookStore.IServices;
+using NopBookStore.Middleware;
 
 
 namespace NopBookStore.Controllers
@@ -15,12 +16,14 @@ namespace NopBookStore.Controllers
         private readonly ModernBookShopDbContext modernBookShopDbContext;
         private readonly IRolePermissionService _rolePermissionService;
         private readonly IUserService _userService;
+        private readonly ICurrentUser _currentUser;
 
-        public BookController(ModernBookShopDbContext context, IRolePermissionService rolePermissionService, IUserService userService)
+        public BookController(ModernBookShopDbContext context, IRolePermissionService rolePermissionService, IUserService userService, ICurrentUser currentUser)
         {
             modernBookShopDbContext = context;
             _rolePermissionService = rolePermissionService;
             _userService = userService;
+            _currentUser = currentUser;
         }
         [Authorize]
         public async Task<IActionResult> Index()
@@ -60,23 +63,31 @@ namespace NopBookStore.Controllers
         }
         public async Task<IActionResult> Create()
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; // Assuming email is stored as a claim
-            if (userEmail != null && !await HasPermission(userEmail, "Book.Add"))
+            //var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; // Assuming email is stored as a claim
+            var userId = _currentUser.GetUserId();
+            if (userId != null && !await HasPermission(userId.Value, "Book.Add"))
             {
                 return RedirectToAction("Index", "Book"); // Or redirect to an access denied page
             }
             ViewBag.Title = "Add the Book Details";
+
             var authors = await modernBookShopDbContext.Authors.ToListAsync();
+            if (authors == null)
+            {
+                authors = new List<Author>(); // or handle the scenario accordingly
+            }
             ViewBag.Authors = authors;
+
             return View();
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreationViewModel bookCreationViewModel)
         {
             // Retrieve the user's role
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value; // Assuming email is stored as a claim
-            if (userEmail != null && !await HasPermission(userEmail, "Book.Add"))
+            var userId = _currentUser.GetUserId();
+            if (userId != null && !await HasPermission(Convert.ToInt32(userId), "Book.Add"))
             {
                 return RedirectToAction("Index", "Book"); // Or redirect to an access denied page
             }
@@ -129,18 +140,22 @@ namespace NopBookStore.Controllers
             return View(bookCreationViewModel);
         }
 
-        private async Task<bool> HasPermission(string userEmail, string permissionName)
+        private async Task<bool> HasPermission(int userId, string permissionName)
         {
-            if (string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(permissionName)) { return false; }
+            //if (string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(permissionName))
+            //{
+            //    return false;
+            //}
             // get the user
-            var user =await _userService.GetUserByEmail(userEmail);
-            if (user == null)
-            {
-                return false; // User not found
-            }
-            var rolePermissions = await _rolePermissionService.GetRolePermissionsAsync(user.UserId);
+            //var user = await _userService.GetUserByEmail(userEmail);
+            //if (user == null)
+            //{
+            //    return false; // User not found
+            //}
 
-            return rolePermissions.Contains(permissionName);
+            var rolePermissions = await _rolePermissionService.GetRolePermissionsAsync(userId);
+            return rolePermissions != null && rolePermissions.Contains(permissionName);
         }
+
     }
 }

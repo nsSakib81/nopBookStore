@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NopBookStore.Data;
 using NopBookStore.IServices;
+using NopBookStore.Middleware;
 using NopBookStore.Services;
 using System.Security.Claims;
 
@@ -21,6 +23,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<CurrentUserMiddleware>();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -35,6 +40,8 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddSession();
+
+builder.Services.AddHttpContextAccessor();
 
 
 var app = builder.Build();
@@ -56,7 +63,7 @@ app.UseRouting();
 // Custom middleware for authentication
 app.Use(async (context, next) =>
 {
-    var userEmail = context.Request.Cookies["UserEmail"];
+    var userEmail = context.Request.Cookies["UserId"];
     var userPassword = context.Request.Cookies["UserPassword"];
 
     if (!string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userPassword))
@@ -85,7 +92,7 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseAuthorization();
-
+app.UseMiddleware<CurrentUserMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

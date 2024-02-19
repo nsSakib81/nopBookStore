@@ -3,16 +3,29 @@ using NopBookStore.IServices;
 using NopBookStore.Models;
 using NopBookStore.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace NopBookStore.Services
 {
     public class AuthorService: IAuthorService
     {
+        
         private readonly ModernBookShopDbContext modernBookShopDbContext;
+        private readonly IHttpContextAccessor contextAccessor;
+        private  ClaimsPrincipal? user;
 
-        public AuthorService(ModernBookShopDbContext context)
+        public AuthorService(ModernBookShopDbContext context,
+            IHttpContextAccessor contextAccessor)
         {
             modernBookShopDbContext = context;
+            this.contextAccessor = contextAccessor;
+
+        }
+
+        public void setUser()
+        {
+            this.user = contextAccessor.HttpContext.User;
+        
         }
         public AuthorViewModel AuthorToAuthorViewModel(Author author)
         {

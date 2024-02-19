@@ -39,8 +39,8 @@ namespace NopBookStore.Controllers
                     // Create claims for the authenticated user
                     var claims = new[]
                     {
-                        new System.Security.Claims.Claim(ClaimTypes.Name, user.UserName, user.UserId.ToString()),
-                        new System.Security.Claims.Claim(ClaimTypes.NameIdentifier, user.UserEmail),
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()),
                         
                 // Add more claims as needed
             };

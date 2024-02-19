@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\NopBookStore.csproj": {}
+    "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\NopBookStore.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\NopBookStore.csproj": {
+    "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\NopBookStore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
+        "projectUniqueName": "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
         "projectName": "NopBookStore",
-        "projectPath": "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
+        "projectPath": "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\NopBookStore.csproj",
         "packagesPath": "C:\\Users\\Piyash\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Piyash\\source\\repos\\NopBookStore\\NopBookStore\\obj\\",
+        "outputPath": "C:\\Users\\Piyash\\Desktop\\NopBookStore\\NopBookStore\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

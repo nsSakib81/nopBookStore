@@ -1,23 +1,32 @@
+using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using NopBookStore.Data;
 using NopBookStore.IServices;
+using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 using NopBookStore.Middleware;
 using NopBookStore.Services;
+using System.Reflection;
 using System.Security.Claims;
+using NopBookStore.Mapper;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ModernBookShopDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("BSDay15ConnectionString")),ServiceLifetime.Scoped);
+options.UseSqlServer(builder.Configuration.GetConnectionString("BSDay15ConnectionString")), ServiceLifetime.Scoped);
+builder.Services.AddFluentMigratorCore()
+    .ConfigureRunner(config =>
+        config.AddSqlServer()
+        .WithGlobalConnectionString("BSDay15ConnectionString") //FluentMigration Added
+        .ScanIn(Assembly.GetExecutingAssembly()).For.All()
+        )
+    .AddLogging(config => config.AddFluentMigratorConsole());
+builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
@@ -25,6 +34,7 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<CurrentUserMiddleware>();
+
 
 
 builder.Services.AddAuthentication(options =>
@@ -40,9 +50,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddSession();
-
 builder.Services.AddHttpContextAccessor();
-
 
 var app = builder.Build();
 
@@ -50,17 +58,16 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
-// Custom middleware for authentication
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.Use(async (context, next) =>
 {
     var userEmail = context.Request.Cookies["UserId"];
@@ -71,7 +78,6 @@ app.Use(async (context, next) =>
         var dbContext = context.RequestServices.GetRequiredService<ModernBookShopDbContext>();
         var userService = context.RequestServices.GetRequiredService<IUserService>();
 
-        // Assuming you have a method in IUserService to authenticate the user
         var user = await userService.AuthenticateUserAsync(userEmail, userPassword);
 
         if (user != null)
@@ -91,10 +97,15 @@ app.Use(async (context, next) =>
 
     await next();
 });
-app.UseAuthorization();
+
 app.UseMiddleware<CurrentUserMiddleware>();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+var serviceProvider = app.Services;
+using var scope = app.Services.CreateScope();
+var migrator = scope.ServiceProvider.GetService<IMigrationRunner>();
 
 app.Run();

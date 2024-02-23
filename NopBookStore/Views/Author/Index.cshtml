@@ -1,0 +1,52 @@
+﻿@model IEnumerable<NopBookStore.ViewModels.AuthorViewModel>
+
+<h1>@ViewBag.Title</h1>
+<p>
+    <a asp-action="Create" style="text-decoration: none; float:right">
+        <h5>Create New</h5>
+    </a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorEmail)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorPhoto)
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Select((value, index) => new { Value = value, Index = index }))
+        {
+            <tr class="@((item.Index % 2 == 0) ? "even" : "odd") ">
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Value.AuthorId" style="text-decoration: none;">
+                        @Html.DisplayFor(modelItem => item.Value.AuthorName)
+                    </a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Value.AuthorEmail)
+                </td>
+                @*<td>
+            @Html.DisplayFor(modelItem => item.Description)
+            </td>*@
+                <td>
+                    <img src="data:@item.Value.PictureFormat;base64,@item.Value.AuthorPhoto" width="80" height="100" />
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Value.AuthorId" style="text-decoration: none;">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.Value.AuthorId" style="text-decoration: none;">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Value.AuthorId" style="text-decoration: none;color: red">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

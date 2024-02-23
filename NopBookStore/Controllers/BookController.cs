@@ -7,6 +7,7 @@ using NopBookStore.Models;
 using System.Security.Claims;
 using NopBookStore.IServices;
 using NopBookStore.Middleware;
+using AutoMapper;
 
 
 namespace NopBookStore.Controllers
@@ -17,13 +18,15 @@ namespace NopBookStore.Controllers
         private readonly IRolePermissionService _rolePermissionService;
         private readonly IUserService _userService;
         private readonly ICurrentUser _currentUser;
+        private IMapper _mapper;
 
-        public BookController(ModernBookShopDbContext context, IRolePermissionService rolePermissionService, IUserService userService, ICurrentUser currentUser)
+        public BookController(ModernBookShopDbContext context, IRolePermissionService rolePermissionService, IUserService userService, ICurrentUser currentUser, IMapper mapper)
         {
             modernBookShopDbContext = context;
             _rolePermissionService = rolePermissionService;
             _userService = userService;
             _currentUser = currentUser;
+            _mapper = mapper;
         }
         [Authorize]
         public async Task<IActionResult> Index()
@@ -157,5 +160,123 @@ namespace NopBookStore.Controllers
             return rolePermissions != null && rolePermissions.Contains(permissionName);
         }
 
+
+        public async Task<IActionResult> Edit(string id)
+        {
+            ViewBag.Title = "Updation of Book Details";
+            if (id == null || modernBookShopDbContext.Books == null)
+            {
+                return NotFound();
+            }
+
+            var book = await modernBookShopDbContext.Books.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+            var authors = modernBookShopDbContext.Authors.ToList();
+            ViewBag.Authors = authors;
+            // from Book model object to BookEditViewModel object
+            var bookEditViewModel = new BookEditViewModel()
+            {
+                AuthorId = book.AuthorId,
+                BookId = book.BookId,
+                Genre = book.Genre,
+                ISBN = book.ISBN,
+                Language = book.Language,
+                Title = book.Title,
+                StockAmount = book.StockAmount,
+                Description = book.Description,
+                publicationDate = book.publicationDate
+
+            };
+
+            var stream = new MemoryStream(book.CoverPhoto);
+            IFormFile formFile = new FormFile(stream, 0, book.CoverPhoto.Length, "name", "fileName");
+            bookEditViewModel.CoverPhoto = formFile;
+
+            return View(bookEditViewModel);
+        }
+
+
+        // POST: Books/Edit/idAutoMapper.AutoMapperMappingException: 'Error mapping types.'
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, BookEditViewModel bookEditViewModel)
+        {
+            if (id != bookEditViewModel.BookId) // ensuring security 
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var book = _mapper.Map<Book>(bookEditViewModel);
+                    if(bookEditViewModel.CoverPhoto!= null && !string.IsNullOrEmpty(bookEditViewModel.CoverPhoto.ContentType))
+                    {
+                        book.PictureFormat= bookEditViewModel.CoverPhoto.ContentType;
+                    }
+                    else
+                    {
+                        book.PictureFormat = "defaultFormat";
+                    }
+                    //{
+                    //  Title = bookEditViewModel.Title,
+                    //  Genre = bookEditViewModel.Genre,
+                    //  Description = bookEditViewModel.Description,
+                    //  ISBN = bookEditViewModel.ISBN,
+                    //  Language = bookEditViewModel.Language,
+                    //  publicationDate = bookEditViewModel.publicationDate,
+                    //  StockAmount = bookEditViewModel.StockAmount,
+                    //  AuthorId = bookEditViewModel.AuthorId,
+                    //  PictureFormat = bookEditViewModel.CoverPhoto.ContentType
+                    //};
+
+                    // converting the coverPhoto from FormFile to byte array
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await bookEditViewModel.CoverPhoto.CopyToAsync(memoryStream);
+                        book.CoverPhoto = memoryStream.ToArray();
+                    }
+
+                    // getting the author of the book 
+                    var authorOfTheBook = await modernBookShopDbContext.Authors.FindAsync(bookEditViewModel.AuthorId);
+                    if (authorOfTheBook == null)
+                    {
+                        return Problem("Author of the book not found in the 'BookShopDbContext.Author' entity");
+                    }
+                    book.Author = authorOfTheBook;
+
+                    // adding to the context
+                    modernBookShopDbContext.Update(book);
+                    await modernBookShopDbContext.SaveChangesAsync(); // adding to the database
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookExists(bookEditViewModel.BookId))
+                    {
+                        if (!BookExists(bookEditViewModel.BookId))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw new Exception("Error from the BookController Post Edit method!");
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            var authors = await modernBookShopDbContext.Authors.ToListAsync();
+            ViewBag.Authors = authors;
+            return View(bookEditViewModel);
+        }
+        private bool BookExists(string id)
+        {
+            return (modernBookShopDbContext.Books?.Any(b => b.BookId == id)).GetValueOrDefault();
+        }
     }
 }
